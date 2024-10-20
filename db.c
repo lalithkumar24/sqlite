@@ -18,8 +18,8 @@ typedef enum{
 
 typedef enum{
     META_COMMAND_SUCCESS,
-    META_COMMAND_UNRECOGNIZED_COMMAND,
-    META_COMMAND_SHOW_ROWS
+    META_COMMAND_SHOW_ROWS,   
+    META_COMMAND_UNRECOGNIZED_COMMAND
 } metaCommandResult;
 
 typedef enum{
