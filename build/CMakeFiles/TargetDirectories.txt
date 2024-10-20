@@ -1,0 +1,3 @@
+/home/lalith/sqlit/build/CMakeFiles/simple_db.dir
+/home/lalith/sqlit/build/CMakeFiles/edit_cache.dir
+/home/lalith/sqlit/build/CMakeFiles/rebuild_cache.dir
