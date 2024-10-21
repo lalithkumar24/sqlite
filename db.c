@@ -86,7 +86,11 @@ MetaCommandResult do_meta_command(InputBuffer* input_buffer, Table* table) {
         close_input_buffer(input_buffer);
         free_table(table);
         exit(EXIT_SUCCESS);
-    } else {
+    }else if(strcmp(input_buffer->buffer, ".rows") == 0){
+        printf("Table has %u rows\n",table->num_rows);
+        return META_COMMAND_SHOW_ROWS;
+    } 
+    else {
         return META_COMMAND_UNRECOGNIZED_COMMAND;
     }
 }

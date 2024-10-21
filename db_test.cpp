@@ -5,10 +5,10 @@ extern "C" {
 }
 
 // Test fixture
- 
 class DatabaseTest : public ::testing::Test {
 protected:
     Table* table;
+    InputBuffer* input_buffer;
 
     void SetUp() override {
         table = new_table();
@@ -50,7 +50,28 @@ TEST_F(DatabaseTest, TableFull) {
     }
     EXPECT_EQ(execute_statement(&insert_stmt, table), EXECUTE_TABLE_FULL);
 }
-// Add more tests as needed...
+
+// Test .exit meta-command
+TEST_F(DatabaseTest, ExitMetaCommand) {
+    strcpy(input_buffer->buffer, ".exit");
+    input_buffer->input_length = strlen(".exit");
+
+    ASSERT_EXIT(
+        do_meta_command(input_buffer, table),
+        ::testing::ExitedWithCode(2),
+        ""
+    );
+}
+TEST_F(DatabaseTest, MetaDup) {
+    strcpy(input_buffer->buffer, ".exit");
+    input_buffer->input_length = strlen(".exit");
+
+    ASSERT_EXIT(
+        do_meta_command(input_buffer, table),
+        ::testing::ExitedWithCode(2),
+        ""
+    );
+}
 
 int main(int argc, char **argv) {
     testing::InitGoogleTest(&argc, argv);
