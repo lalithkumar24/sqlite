@@ -11,6 +11,8 @@
 #define COLUMN_USERNAME_SIZE 32
 #define COLUMN_EMAIL_SIZE 255
 #define TABLE_MAX_PAGES 100
+#define PAGE_SIZE 4096
+
 
 typedef struct {
     uint32_t id;
@@ -55,13 +57,27 @@ typedef enum {
     PREPARE_SYNTAX_ERROR, 
     PREPARE_UNRECOGNIZED_STATEMENT 
 } PrepareResult;
+// const 
+
+extern const uint32_t ID_SIZE;
+extern const uint32_t USERNAME_SIZE;
+extern const uint32_t EMAIL_SIZE;
+extern const uint32_t ID_OFFSET;
+extern const uint32_t USERNAME_OFFSET;
+extern const uint32_t EMAIL_OFFSET;
+extern const uint32_t ROW_SIZE;
+extern const uint32_t ROWS_PER_PAGE;
+extern const uint32_t TABLE_MAX_ROWS;
 
 // Function declarations
 void print_row(Row* row);
+void print_prompt();
+void db_run();
 void serialize_row(Row* source, void* destination);
 void deserialize_row(void* source, Row* destination);
 void* row_slot(Table* table, uint32_t row_num);
 InputBuffer* new_input_buffer();
+void read_input(InputBuffer* inputbuffer);
 void close_input_buffer(InputBuffer* input_buffer);
 Table* new_table();
 void free_table(Table* table);

@@ -1,17 +1,20 @@
 #include "db.h"
 
-const uint32_t ID_SIZE = sizeof(((Row*)0)->id);
-const uint32_t USERNAME_SIZE = sizeof(((Row*)0)->username);
-const uint32_t EMAIL_SIZE = sizeof(((Row*)0)->email);
+#define size_of_attribute(Struct, Attribute) sizeof(((Struct*)0)->Attribute)
+
+const uint32_t ID_SIZE = size_of_attribute(Row,id);
+const uint32_t USERNAME_SIZE = size_of_attribute(Row,username);
+const uint32_t EMAIL_SIZE = size_of_attribute(Row,email);
 const uint32_t ID_OFFSET = 0;
 const uint32_t USERNAME_OFFSET = ID_OFFSET + ID_SIZE;
 const uint32_t EMAIL_OFFSET = USERNAME_OFFSET + USERNAME_SIZE;
 const uint32_t ROW_SIZE = ID_SIZE + USERNAME_SIZE + EMAIL_SIZE;
+const uint32_t ROWS_PER_PAGE = 14;
+const uint32_t TABLE_MAX_ROWS = 1400;
 
-const uint32_t PAGE_SIZE = 4096;
-const uint32_t ROWS_PER_PAGE = PAGE_SIZE / ROW_SIZE;
-const uint32_t TABLE_MAX_ROWS = ROWS_PER_PAGE * TABLE_MAX_PAGES;
-
+void print_prompt(){
+    printf("db -> ");
+}
 void print_row(Row* row) {
     printf("(%d, %s, %s)\n", row->id, row->username, row->email);
 }
@@ -40,20 +43,30 @@ void* row_slot(Table* table, uint32_t row_num) {
 }
 
 InputBuffer* new_input_buffer() {
-    InputBuffer* input_buffer = malloc(sizeof(InputBuffer));
+    InputBuffer* input_buffer = (InputBuffer*)malloc(sizeof(InputBuffer));
     input_buffer->buffer = NULL;
     input_buffer->buffer_length = 0;
     input_buffer->input_length = 0;
     return input_buffer;
 }
+void read_input(InputBuffer* inputbuffer){
+    ssize_t bytes_read = getline(&(inputbuffer->buffer),&(inputbuffer->buffer_length),stdin);
 
+    if(bytes_read <= 0){
+        printf("Error reading input\n");
+        exit(EXIT_FAILURE);
+    }
+
+    inputbuffer -> input_length = bytes_read;
+    inputbuffer -> buffer[bytes_read-1] = 0;
+}
 void close_input_buffer(InputBuffer* input_buffer) {
     free(input_buffer->buffer);
     free(input_buffer);
 }
 
 Table* new_table() {
-    Table* table = malloc(sizeof(Table));
+    Table* table = (Table*)malloc(sizeof(Table));
     table->num_rows = 0;
     for (uint32_t i = 0; i < TABLE_MAX_PAGES; i++) {
         table->pages[i] = NULL;
@@ -128,7 +141,7 @@ ExecuteResult execute_statement(Statement* statement, Table* table) {
     }
 }
 
-int main(int argc,char* argv[]){
+void db_run(){
     Table* table = new_table();
     InputBuffer* inputbuffer = new_input_buffer();
     while(true){
