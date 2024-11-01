@@ -1,12 +1,17 @@
 #ifndef DB_H
 #define DB_H
 
+#include<errno.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <unistd.h> 
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+
 
 #define COLUMN_USERNAME_SIZE 32
 #define COLUMN_EMAIL_SIZE 255
@@ -20,9 +25,15 @@ typedef struct {
     char email[COLUMN_EMAIL_SIZE+1];
 } Row;
 
+typedef struct{
+    int file_descriptior;
+    uint32_t file_length;
+    void* pages[TABLE_MAX_PAGES];
+}Pager;
+
 typedef struct {
     uint32_t num_rows;
-    void* pages[TABLE_MAX_PAGES];
+    Pager* pager;
 } Table;
 
 typedef struct {
@@ -59,6 +70,8 @@ typedef enum {
     PREPARE_NEGATIVE_ID,
     PREPARE_UNRECOGNIZED_STATEMENT 
 } PrepareResult;
+
+
 // const 
 
 extern const uint32_t ID_SIZE;
@@ -74,15 +87,18 @@ extern const uint32_t TABLE_MAX_ROWS;
 // Function declarations
 void print_row(Row* row);
 void print_prompt();
-void db_run();
+void db_run(const char* filename);
 void serialize_row(Row* source, void* destination);
 void deserialize_row(void* source, Row* destination);
 void* row_slot(Table* table, uint32_t row_num);
 InputBuffer* new_input_buffer();
 void read_input(InputBuffer* inputbuffer);
 void close_input_buffer(InputBuffer* input_buffer);
-Table* new_table();
-void free_table(Table* table);
+Table* db_open(const char* filename);
+void* get_page(Pager* page,uint32_t page_num);
+void db_close(Table* table);
+void pager_flush(Pager* pager,uint32_t page_num,uint32_t size);
+Pager* pager_open(const char* filename);
 MetaCommandResult do_meta_command(InputBuffer* input_buffer, Table* table);
 PrepareResult prepare_insert(InputBuffer* input_buffer,Statement* statement);
 PrepareResult prepare_statement(InputBuffer* input_buffer, Statement* statement);
