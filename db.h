@@ -36,6 +36,12 @@ typedef struct {
     Pager* pager;
 } Table;
 
+typedef struct{
+    Table* table;
+    uint32_t row_num;
+    bool end_of_table;
+}Cursor;
+
 typedef struct {
     char* buffer;
     size_t buffer_length;
@@ -90,7 +96,7 @@ void print_prompt();
 void db_run(const char* filename);
 void serialize_row(Row* source, void* destination);
 void deserialize_row(void* source, Row* destination);
-void* row_slot(Table* table, uint32_t row_num);
+void* cursor_value(Cursor* cursor);
 InputBuffer* new_input_buffer();
 void read_input(InputBuffer* inputbuffer);
 void close_input_buffer(InputBuffer* input_buffer);
@@ -99,6 +105,8 @@ void* get_page(Pager* page,uint32_t page_num);
 void db_close(Table* table);
 void pager_flush(Pager* pager,uint32_t page_num,uint32_t size);
 Pager* pager_open(const char* filename);
+Cursor* table_start(Table* table);
+Cursor* table_end(Table* table);
 MetaCommandResult do_meta_command(InputBuffer* input_buffer, Table* table);
 PrepareResult prepare_insert(InputBuffer* input_buffer,Statement* statement);
 PrepareResult prepare_statement(InputBuffer* input_buffer, Statement* statement);
